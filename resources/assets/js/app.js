@@ -25,7 +25,8 @@ const app = new Vue({
         sheepfolds: [],
         sheeps: [],
         count: 0,
-        day: 0
+        day: 0,
+        selected: 0
     },
 
     created() {
@@ -75,6 +76,23 @@ const app = new Vue({
                 this.day = response.data;
                 this.count = this.day * 10;
             });
+        },
+        startAgain() {
+            this.day = 0;
+            axios.post('/refresh', this.day).then(response => {
+                console.log(response.data);
+            });
+            this.getSheepfolds();
+        },
+        selectSheep(sheep) {
+            console.log(sheep.id);
+            this.selected = sheep.id;
+        },
+        killSelected() {
+          axios.post('/sheeps/'+this.selected+'/day/'+this.day).then(response => {
+              console.log(response.data);
+          });
+          this.getSheepfolds();
         }
 
     }

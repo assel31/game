@@ -7,36 +7,16 @@ use App\Sheepfold;
 use App\Sheep;
 use App\History;
 use Session;
+use DB;
 
 class SheepController extends Controller
 {
     public function create()
     {
-        $arr = [];
         if (empty(Sheepfold::first())) {
             Session::put('day', 0);
             $sheepfolds = $this->createSheepfolds();
-
-            $r1 = rand(1, 7);
-            $r2 = rand(1, 10-$r1-2);
-            $r3 = rand(1, 10-($r1+$r2)-1);
-            $r4 = 10 - ($r1+$r2+$r3);
-
-            array_push($arr, $r1);
-            array_push($arr, $r2);
-            array_push($arr, $r3);
-            array_push($arr, $r4);
-
-            $numeration = 1;
-            foreach ($sheepfolds as $key => $sheepfold) {
-                for ($i=0; $i < $arr[$key]; $i++) {
-                    $sheep = $sheepfold->sheeps()->create([
-                        'name' => 'Sheep ' . $numeration
-                    ]);
-                    $numeration++;
-                    $this->addHistory($sheepfold, $sheep, 0, 'new');
-                }
-            }
+            $this->addTenSheeps($sheepfolds);
         }
 
         $folds = Sheepfold::with('sheeps')->get();
@@ -139,5 +119,53 @@ class SheepController extends Controller
         }
 
         return view('history', compact('day', 'allSheeps', 'deleted', 'alive'));
+    }
+
+    public function refresh()
+    {
+        DB::table('sheep')->delete();
+        DB::table('histories')->delete();
+        Session::put('day', 0);
+        $sheepfolds = Sheepfold::all();
+        $this->addTenSheeps($sheepfolds);
+        return ['status' => 'success'];
+    }
+
+    public function addTenSheeps($sheepfolds)
+    {
+        $arr = [];
+        $r1 = rand(1, 7);
+        $r2 = rand(1, 10-$r1-2);
+        $r3 = rand(1, 10-($r1+$r2)-1);
+        $r4 = 10 - ($r1+$r2+$r3);
+
+        array_push($arr, $r1);
+        array_push($arr, $r2);
+        array_push($arr, $r3);
+        array_push($arr, $r4);
+
+        $numeration = 1;
+
+        foreach ($sheepfolds as $key => $sheepfold) {
+            for ($i=0; $i < $arr[$key]; $i++) {
+                $sheep = $sheepfold->sheeps()->create([
+                    'name' => 'Sheep ' . $numeration
+                ]);
+                $numeration++;
+                $this->addHistory($sheepfold, $sheep, 0, 'new');
+            }
+        }
+    }
+
+    public function kill($id, $day)
+    {
+        $sheep = Sheep::find($id);
+        $sheepfold = $sheep->sheepfold;
+        if ($sheepfold->sheeps->count() > 1) {
+            $sheep->update([
+                'is_dead' => 1
+            ]);
+            $this->addHistory($sheep->sheepfold, $sheep, $day, 'deleted');
+        }
     }
 }

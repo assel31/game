@@ -23,7 +23,8 @@ class CreateHistoriesTable extends Migration
             $table->timestamps();
 
             $table->foreign('sheep_id')
-                ->references('id')->on('sheep');
+                ->references('id')->on('sheep')
+                ->onDelete('cascade');
             $table->foreign('sheepfold_id')
                 ->references('id')->on('sheepfolds');
         });

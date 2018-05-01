@@ -28,5 +28,7 @@ Route::get('/day', function () {
 
 Route::post('/sheeps', 'SheepController@create');
 Route::post('/sheeps/{day}', 'SheepController@new');
-Route::post('/sheeps/{day}/delete', 'SheepController@delete');
+Route::post('/sheeps/{day}/delete', 'SheepController@delete');//random delete
+Route::post('/sheeps/{id}/day/{day}', 'SheepController@kill');//delete selected
 Route::post('/history', 'SheepController@history')->name('history');
+Route::post('/refresh', 'SheepController@refresh');

@@ -4,7 +4,19 @@
 
 <div id="app">
     <div class="container">
-         <sheepfold :sheepfolds="sheepfolds" :day="day"></sheepfold>
+         <sheepfold
+            v-on:selectsheep="selectSheep"
+            :sheepfolds="sheepfolds"
+            :day="day"
+         ></sheepfold>
+         <div class="row">
+             <div class="col-md-6">
+                 <button class="form-control" @click="startAgain">refresh</button>
+             </div>
+             <div class="col-md-6">
+                 <button class="form-control" @click="killSelected">kill</button>
+             </div>
+         </div>
          <form method="post" action="{{route('history')}}">
               {{ csrf_field() }}
              <div class="row">
